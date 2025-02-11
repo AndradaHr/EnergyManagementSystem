@@ -1,0 +1,22 @@
+.table {
+    border: 2px solid #006241b7; 
+    border-collapse: collapse; 
+  }
+  
+  .table th, .table td {
+    border: 1px solid #006241b7; 
+  }
+  
+  .table th {
+    background-color: #e9f5f2;
+  }
+  
+  .btn {
+    background-color: #006241b7; 
+    color: white; 
+  }
+  
+  .btn:hover {
+    background-color: #004a32;
+  }
+  

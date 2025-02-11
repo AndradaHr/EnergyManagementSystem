@@ -1,0 +1,111 @@
+.background_image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    opacity: 0.8; 
+    z-index: -1; 
+    background-image: url("https://genless.govt.nz/assets/Everyone-Images/Lifestyle/Smart-Homes-Infographic__ScaleMaxWidthWzE2MDBd.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.hero_content {
+    padding: 80px 40px; 
+    text-align: center; 
+    color: green; 
+}
+
+.hero_title {
+    font-size: 3rem; 
+    margin-bottom: 20px; 
+}
+
+.hero_description {
+    font-size: 1.5rem; 
+    max-width: 800px; 
+    margin: 0 auto; 
+}
+
+
+.card_container {
+    width: 100%;
+    background-color: white;
+    position: relative;
+}
+
+.card_item {
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    overflow: hidden; 
+}
+
+.card_item_img_box {
+    width: 100%;
+}
+
+.card_item_txt_box {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 30px;
+}
+
+
+.smart_home_container {
+    display: flex;
+    align-items: center; 
+    padding: 40px;
+    background-color: white; 
+    margin: 20px 0; 
+}
+
+.smart_home_image {
+    width: 50%; 
+    border-radius: 10px;
+}
+
+.smart_home_text {
+    padding-left: 20px; 
+    flex: 1; 
+}
+
+.smart_home_description {
+    margin-bottom: 15px; 
+}
+.carousel_btn_box_R, .carousel_btn_box_L {
+    border: 1px solid #fff;
+    color: white;
+    border-radius: 50%;
+    background-color: #323234;
+    opacity: 0.7;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.carousel_btn_box_R:hover, .carousel_btn_box_L:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.custom_button {
+    background-color: #006241; 
+    color: white; 
+    border-radius: 5px;
+    padding: 15px 30px; 
+    transition: background-color 0.3s ease;
+    display: flex; 
+    align-items: center;
+    font-size: 1.2rem; 
+  }
+  
+  .custom_button:hover {
+    background-color: #004a32; 
+  }
+  

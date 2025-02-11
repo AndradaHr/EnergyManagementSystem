@@ -1,0 +1,6 @@
+services:
+  app:
+    container_name: front
+    image: app:latest
+    ports:
+      - "3000:3000"

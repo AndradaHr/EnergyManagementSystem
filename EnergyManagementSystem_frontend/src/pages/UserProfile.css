@@ -1,0 +1,65 @@
+.user-profile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.profile-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.user-card {
+  flex: 1;
+  max-width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.profile-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.card-title {
+  font-size: 24px;
+  color: #333333;
+  margin-bottom: 15px;
+}
+
+.card-text {
+  font-size: 16px;
+  color: #666666;
+  line-height: 1.5;
+}
+
+.my-devices {
+  flex: 2;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.device-item {
+  padding: 15px;
+  margin: 10px 0;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.my-devices-title {
+  color: #000; 
+}

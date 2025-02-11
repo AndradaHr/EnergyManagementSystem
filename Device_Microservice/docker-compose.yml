@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'device_db'
+      MYSQL_ROOT_PASSWORD: 'root123'
+      MYSQL_USER: 'device_user'
+      MYSQL_PASSWORD: 'device123'
+    ports:
+      - "3307:3306"
+    volumes:
+      - my-db:/var/lib/mysql
+    networks:
+      - demo_net
+  spring-demo:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_IP=db
+      - DB_PORT=3306
+      - DB_DBNAME=device_db
+      - DB_USER=device_user
+      - DB_PASSWORD=device123
+    networks:
+      - demo_net
+    restart: unless-stopped
+    depends_on:
+      - db
+
+volumes:
+  my-db:
+
+networks:
+  demo_net:
+    driver: bridge

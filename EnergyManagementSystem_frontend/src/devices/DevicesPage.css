@@ -1,0 +1,26 @@
+.container {
+    padding: 20px;
+  }
+  
+  h1 {
+    color: #333;
+    font-weight: 700;
+  }
+  
+  .table {
+    margin-top: 20px;
+  }
+  
+  .btn-outline-light, .btn-outline-success, .btn-primary, .btn-outline-primary, .btn-danger {
+    margin: 5px;
+  }
+  
+  .table th, .table td {
+    text-align: center;
+  }
+  
+  .table .btn {
+    font-size: 0.9em;
+    padding: 5px 10px;
+  }
+  

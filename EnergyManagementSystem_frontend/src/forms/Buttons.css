@@ -1,0 +1,18 @@
+.custom-btn {
+    background-color: #006241b7;
+    color: white; 
+    border: none; 
+  }
+  .forgot-password-link {
+    color: black;
+}
+.btn-custom {
+    background-color: #006241b7;
+    color: #ffffff;
+    border: none;
+  }
+  
+  .btn-custom:hover {
+    background-color: #005232;
+  }
+  

@@ -1,0 +1,231 @@
+version: '3.8'
+
+networks:
+  demo_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
+
+services:
+
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    networks:
+      demo_net:
+    ports:
+      - "80:80"
+      - "8080:8080"
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --accesslog=true
+      - --accesslog.filepath=/var/log/traefik/access.log
+      - --log.level=DEBUG
+      - --entrypoints.web.address=:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik_logs:/var/log/traefik
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    networks:
+      demo_net:
+        ipv4_address: 172.16.0.9
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MySQL pentru gestionarea utilizatorilor
+  mysql-user:
+    image: mysql:5.7
+    container_name: mysql-user
+    networks:
+      demo_net:
+    environment:
+      MYSQL_DATABASE: 'user_db'
+      MYSQL_ROOT_PASSWORD: 'user123'
+      MYSQL_USER: 'user_user'
+      MYSQL_PASSWORD: 'user123'
+    ports:
+      - "3308:3306"
+    volumes:
+      - user-db:/var/lib/mysql
+
+  # Aplicație Spring Boot pentru gestionarea utilizatorilor
+  user-management-app:
+    build:
+      context: ./User_Microservice
+      dockerfile: ./Dockerfile
+    networks:
+      demo_net:
+    deploy:
+      replicas: 2
+    environment:
+      DB_IP: mysql-user
+      DB_PORT: 3306
+      DB_DBNAME: user_db
+      DB_USER: user_user
+      DB_PASSWORD: user123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin123
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-management-app.rule=Host(`user.localhost`)"
+      - "traefik.http.services.user-management-app.loadbalancer.server.port=8082"
+      - "traefik.http.routers.user-management-app.entrypoints=web"
+    depends_on:
+      - mysql-user
+      - rabbitmq
+
+  # MySQL pentru gestionarea dispozitivelor
+  mysql-device:
+    image: mysql:5.7
+    container_name: mysql-device
+    networks:
+      demo_net:
+    environment:
+      MYSQL_DATABASE: 'device_db'
+      MYSQL_ROOT_PASSWORD: 'root123'
+      MYSQL_USER: 'device_user'
+      MYSQL_PASSWORD: 'device123'
+    ports:
+      - "3307:3306"
+    volumes:
+      - device-db:/var/lib/mysql
+
+  # Aplicație Spring Boot pentru gestionarea dispozitivelor
+  device-management-app:
+    build:
+      context: ./Device_Microservice
+      dockerfile: ./Dockerfile
+    networks:
+      demo_net:
+    deploy:
+      replicas: 1
+    extra_hosts:
+      - "monitoring.localhost:host-gateway"
+    environment:
+      DB_IP: mysql-device
+      DB_PORT: 3306
+      DB_DBNAME: device_db
+      DB_USER: device_user
+      DB_PASSWORD: device123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin123
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.device-management-app.rule=Host(`device.localhost`)"
+      - "traefik.http.services.device-management-app.loadbalancer.server.port=8081"
+      - "traefik.http.routers.device-management-app.entrypoints=web"
+    depends_on:
+      - mysql-device
+      - rabbitmq
+    restart: on-failure
+
+  # MySQL pentru monitorizare
+  mysql-monitoring:
+    image: mysql:5.7
+    container_name: mysql-monitoring
+    networks:
+      demo_net:
+    environment:
+      MYSQL_DATABASE: 'monitoring_db'
+      MYSQL_ROOT_PASSWORD: 'user123'
+      MYSQL_USER: 'monitoring_device'
+      MYSQL_PASSWORD: 'user123'
+    ports:
+      - "3309:3306"
+    volumes:
+      - monitoring-db:/var/lib/mysql
+
+  # Aplicație Spring Boot pentru monitorizare
+  monitoring-management-app:
+    build:
+      context: ./Monitoring_Microservice
+      dockerfile: ./Dockerfile
+    networks:
+      demo_net:
+    deploy:
+      replicas: 1
+    environment:
+      DB_IP: mysql-monitoring
+      DB_PORT: 3306
+      DB_DBNAME: monitoring_db
+      DB_USER: monitoring_device
+      DB_PASSWORD: user123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: admin123
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monitoring-management-app.rule=Host(`monitoring.localhost`)"
+      - "traefik.http.services.monitoring-management-app.loadbalancer.server.port=8083"
+      - "traefik.http.routers.monitoring-management-app.entrypoints=web"
+    depends_on:
+      - mysql-monitoring
+      - rabbitmq
+    restart: on-failure
+
+  chat-management-app:
+    build:
+      context: ./Chat_Microservice
+      dockerfile: ./Dockerfile
+    networks:
+      demo_net:
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.chat-management-app.rule=Host(`chat.localhost`)"
+      - "traefik.http.services.chat-management-app.loadbalancer.server.port=8085"
+      - "traefik.http.routers.chat-management-app.entrypoints=web"
+    restart: on-failure
+
+  # Front-end
+  app:
+    build:
+      context: ./EnergyManagementSystem_frontend
+      dockerfile: ./Dockerfile
+    container_name: front
+    image: app:latest
+    networks:
+      demo_net:
+    environment:
+      NG_APP_HOST_USER_API: http://user.localhost
+      NG_APP_HOST_DEVICE_API: http://device.localhost
+      NG_APP_HOST_MONITORING_API: http://monitoring.localhost
+      NG_APP_HOST_CHAT_API: http://chat.localhost
+    ports:
+      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`localhost`)"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.app.entrypoints=web"
+    depends_on:
+      - user-management-app
+      - device-management-app
+      - monitoring-management-app
+      - chat-management-app
+
+volumes:
+  user-db:
+  device-db:
+  monitoring-db:
+  traefik_logs:

@@ -1,0 +1,67 @@
+#version: '3.8'
+#
+#services:
+#  rabbitmq:
+#    image: rabbitmq:4.0.3-management
+#    container_name: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    environment:
+#      RABBITMQ_DEFAULT_USER: guest
+#      RABBITMQ_DEFAULT_PASS: guest
+#    volumes:
+#      - rabbitmq_data:/var/lib/rabbitmq
+#
+#  monitoring-microservice:
+#    build: .
+#    container_name: monitoring-microservice
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - ./src/main/resources:/app/resources
+#
+#volumes:
+#  rabbitmq_data:
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'monitoring_db'
+      MYSQL_ROOT_PASSWORD: 'user123'
+      MYSQL_USER: 'monitoring_device'
+      MYSQL_PASSWORD: 'user123'
+    ports:
+      - "3308:3306"
+    volumes:
+      - my-db:/var/lib/mysql
+    networks:
+      - demo_net
+  spring-demo:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - DB_IP=db
+      - DB_PORT=3306
+      - DB_DBNAME=monitoring_db
+      - DB_USER=monitoring_device
+      - DB_PASSWORD=user123
+    networks:
+      - demo_net
+    restart: unless-stopped
+    depends_on:
+      - db
+
+volumes:
+  my-db:
+
+networks:
+  demo_net:
+    driver: bridge
